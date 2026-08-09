@@ -29,6 +29,8 @@ GearShifter = structs.CarState.GearShifter
 ACCEL_WINDUP_LIMIT = 4.0 * DT_CTRL * 3  # m/s^2 / frame
 ACCEL_WINDDOWN_LIMIT = -4.0 * DT_CTRL * 3  # m/s^2 / frame
 ACCEL_PID_UNWIND = 0.03 * DT_CTRL * 3  # m/s^2 / frame
+STOPPING_PID_UNWIND = 0.15 * DT_CTRL * 3  # m/s^2 / frame
+STOPPING_PID_ACCEL_MARGIN = 0.05  # m/s^2
 
 MAX_PITCH_COMPENSATION = 1.5  # m/s^2
 
@@ -39,6 +41,16 @@ MAX_STEER_RATE_FRAMES = 17  # tx control frames needed before torque can be cut
 
 # EPS allows user torque above threshold for 50 frames before permanently faulting
 MAX_USER_TORQUE = 500
+
+
+def unwind_long_pid(pid, stopping, v_ego, a_ego, accel, requested_accel):
+  recovering = (stopping and 0.05 < v_ego < 1.0 and pid.i < 0.0 and min(accel, requested_accel) > -1.0
+                and a_ego < accel - STOPPING_PID_ACCEL_MARGIN)
+  if recovering:
+    pid.i = min(0.0, pid.i + STOPPING_PID_UNWIND)
+  else:
+    pid.i -= ACCEL_PID_UNWIND * float(np.sign(pid.i))
+
 
 def get_long_tune(CP, params):
   if CP.carFingerprint in TSS2_CAR:
@@ -256,8 +268,7 @@ class CarController(CarControllerBase, GasInterceptorCarController):
         a_ego_future = a_ego_blended + j_ego * future_t
 
         if CC.longActive:
-          # constantly slowly unwind integral to recover from large temporary errors
-          self.long_pid.i -= ACCEL_PID_UNWIND * float(np.sign(self.long_pid.i))
+          unwind_long_pid(self.long_pid, stopping, CS.out.vEgo, a_ego_blended, pcm_accel_cmd, actuators.accel)
 
           error_future = pcm_accel_cmd - a_ego_future
 
