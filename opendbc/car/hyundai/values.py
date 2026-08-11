@@ -33,6 +33,9 @@ class CarControllerParams:
       self.STEER_THRESHOLD = 250
       self.STEER_DELTA_UP = 2
       self.STEER_DELTA_DOWN = 3
+      safety_param = CP.safetyConfigs[-1].safetyParam if len(CP.safetyConfigs) else 0
+      if safety_param & HyundaiSafetyFlags.CANFD_HIGH_TORQUE:
+        self.STEER_MAX = 409
 
     # To determine the limit for your car, find the maximum value that the stock LKAS will request.
     # If the max stock LKAS request is <384, add your car to this list.
@@ -68,6 +71,7 @@ class HyundaiSafetyFlags(IntFlag):
   CANFD_LKA_STEER_MSG_ALT = 128
   FCEV_GAS = 256
   ALT_LIMITS_2 = 512
+  CANFD_HIGH_TORQUE = 2048
 
 
 # Hyundai/Kia/Genesis SCC (Smart Cruise Control) and steering architecture:
