@@ -17,7 +17,7 @@ class CarControllerParams:
   ACCEL_MIN = -3.5 # m/s^2
   ACCEL_MAX = 2.0 # m/s^2
 
-  def __init__(self, CP):
+  def __init__(self, CP, vEgoRaw=100.):
     self.STEER_DELTA_UP = 3
     self.STEER_DELTA_DOWN = 7
     self.STEER_DRIVER_ALLOWANCE = 50
@@ -36,6 +36,11 @@ class CarControllerParams:
       safety_param = CP.safetyConfigs[-1].safetyParam if len(CP.safetyConfigs) else 0
       if safety_param & HyundaiSafetyFlags.CANFD_HIGH_TORQUE:
         self.STEER_MAX = 409
+        self.STEER_DRIVER_ALLOWANCE = 100
+        self.STEER_THRESHOLD = 100
+        if vEgoRaw < 15.0:
+          self.STEER_DELTA_UP = 10
+          self.STEER_DELTA_DOWN = 8
 
     # To determine the limit for your car, find the maximum value that the stock LKAS will request.
     # If the max stock LKAS request is <384, add your car to this list.

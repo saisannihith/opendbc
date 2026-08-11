@@ -65,6 +65,8 @@ class CarController(CarControllerBase, EsccCarController, LeadDataCarController,
     IntelligentCruiseButtonManagementInterface.__init__(self, CP, CP_SP)
     self.CAN = CanBus(CP)
     self.params = CarControllerParams(CP)
+    safety_param = CP.safetyConfigs[-1].safetyParam if len(CP.safetyConfigs) else 0
+    self.canfd_high_torque = bool(safety_param & HyundaiSafetyFlags.CANFD_HIGH_TORQUE)
     self.packer = CANPacker(dbc_names[Bus.pt])
     self.angle_limit_counter = 0
 
@@ -85,6 +87,8 @@ class CarController(CarControllerBase, EsccCarController, LeadDataCarController,
     hud_control = CC.hudControl
 
     # steering torque
+    if self.canfd_high_torque:
+      self.params = CarControllerParams(self.CP, CS.out.vEgoRaw)
     new_torque = int(round(actuators.torque * self.params.STEER_MAX))
     apply_torque = apply_driver_steer_torque_limits(new_torque, self.apply_torque_last, CS.out.steeringTorque, self.params)
 
