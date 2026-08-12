@@ -85,8 +85,7 @@ class CarInterface(CarInterfaceBase):
         ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.CANFD_ALT_BUTTONS.value
       if ret.flags & HyundaiFlags.CANFD_CAMERA_SCC:
         ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.CAMERA_SCC.value
-      if candidate == CAR.KIA_CARNIVAL_4TH_GEN:
-        ret.safetyConfigs[-1].safetyParam |= HyundaiSafetyFlags.CANFD_HIGH_TORQUE.value
+      # SNITHPilot: disable Carnival high-torque mode until lateral direction is validated on road logs.
 
     else:
       # Shared configuration for non CAN-FD cars
