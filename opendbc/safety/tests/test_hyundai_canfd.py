@@ -129,9 +129,6 @@ class TestHyundaiCanfdLFASteeringHighTorque(TestHyundaiCanfdLFASteeringBase):
   SAFETY_PARAM = HyundaiSafetyFlags.CANFD_HIGH_TORQUE
 
   MAX_TORQUE_LOOKUP = [0], [409]
-  MAX_RATE_UP = 10
-  MAX_RATE_DOWN = 10
-  MAX_RT_DELTA = 375
 
 
 class TestHyundaiCanfdLFASteeringAltButtonsBase(TestHyundaiCanfdLFASteeringBase):
