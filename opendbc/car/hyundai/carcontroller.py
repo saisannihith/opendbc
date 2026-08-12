@@ -22,7 +22,6 @@ LongCtrlState = structs.CarControl.Actuators.LongControlState
 MAX_ANGLE = 85
 MAX_ANGLE_FRAMES = 89
 MAX_ANGLE_CONSECUTIVE_FRAMES = 2
-SNITH_MIN_LATERAL_SPEED = 5.0  # m/s, keep MADS from applying steering torque in garages/parking lots.
 
 # On some HKG CAN and CAN FD non-CANFD_ALT_BUTTONS, the cancel button (CF_Clu_CruiseSwState / CRUISE_BUTTONS = 4) is
 # a pause/resume toggle, not a dedicated cancel. Firing it mid-brake inadvertently can cause a re-enable attempt
@@ -98,7 +97,7 @@ class CarController(CarControllerBase, EsccCarController, LeadDataCarController,
                                                                        self.angle_limit_counter, MAX_ANGLE_FRAMES,
                                                                        MAX_ANGLE_CONSECUTIVE_FRAMES)
 
-    if not CC.latActive or CS.out.vEgoRaw < SNITH_MIN_LATERAL_SPEED:
+    if not CC.latActive:
       apply_torque = 0
 
     self.apply_torque_last = apply_torque
