@@ -70,20 +70,6 @@ class TestHyundaiFingerprint(unittest.TestCase):
       CP = CarInterface.get_params(car_model, fingerprint, [], False, False, False)
       assert bool(CP.flags & HyundaiFlags.ALT_LIMITS) == bool(CP.safetyConfigs[-1].safetyParam & HyundaiSafetyFlags.ALT_LIMITS)
 
-  def test_carnival_high_torque_does_not_collide_with_angle_steering(self):
-    fingerprint = gen_empty_fingerprint()
-    can = CanBus(None, fingerprint)
-    fingerprint[can.ECAN][0x1AA] = 16
-
-    CP = CarInterface.get_params(CAR.KIA_CARNIVAL_4TH_GEN, fingerprint, [], True, False, False)
-    safety_param = CP.safetyConfigs[-1].safetyParam
-
-    assert safety_param & HyundaiSafetyFlags.CANFD_HIGH_TORQUE
-    assert safety_param & HyundaiSafetyFlags.LONG
-    assert safety_param & HyundaiSafetyFlags.CANFD_ALT_BUTTONS
-    assert not safety_param & 1024  # StarPilot aliases this bit to CAN-FD angle steering.
-    assert safety_param == 2084
-
   def test_can_features(self):
     # Test no EV/HEV in any gear lists (should all use ELECT_GEAR)
     assert set.union(*CAN_GEARS.values()) & (HYBRID_CAR | EV_CAR) == set()

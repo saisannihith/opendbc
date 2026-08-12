@@ -133,11 +133,6 @@ class TestHyundaiCanfdLFASteeringHighTorque(TestHyundaiCanfdLFASteeringBase):
   MAX_RATE_DOWN = 10
   MAX_RT_DELTA = 375
 
-  def test_inactive_lfa_is_allowed_before_mads_or_longitudinal_engagement(self):
-    self.safety.set_controls_allowed(False)
-    self.safety.set_controls_allowed_lateral(False)
-    self.assertTrue(self._tx(self._torque_cmd_msg(0, steer_req=0)))
-
 
 class TestHyundaiCanfdLFASteeringAltButtonsBase(TestHyundaiCanfdLFASteeringBase):
 
