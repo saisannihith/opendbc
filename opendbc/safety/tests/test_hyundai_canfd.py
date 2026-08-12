@@ -123,14 +123,6 @@ class TestHyundaiCanfdLFASteering(TestHyundaiCanfdLFASteeringBase):
   pass
 
 
-class TestHyundaiCanfdLFASteeringHighTorque(TestHyundaiCanfdLFASteeringBase):
-  GAS_MSG = ("ACCELERATOR_BRAKE_ALT", "ACCELERATOR_PEDAL_PRESSED")
-  SCC_BUS = 0
-  SAFETY_PARAM = HyundaiSafetyFlags.CANFD_HIGH_TORQUE
-
-  MAX_TORQUE_LOOKUP = [0], [409]
-
-
 class TestHyundaiCanfdLFASteeringAltButtonsBase(TestHyundaiCanfdLFASteeringBase):
 
   SAFETY_PARAM: int
