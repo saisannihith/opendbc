@@ -33,6 +33,11 @@ class CarControllerParams:
       self.STEER_THRESHOLD = 250
       self.STEER_DELTA_UP = 2
       self.STEER_DELTA_DOWN = 3
+      if CP.carFingerprint == CAR.KIA_CARNIVAL_4TH_GEN:
+        self.STEER_MAX = 409
+        self.STEER_DRIVER_ALLOWANCE = 100
+        self.STEER_THRESHOLD = 100
+        self.STEER_DRIVER_DELTA_DOWN = 10
 
     # To determine the limit for your car, find the maximum value that the stock LKAS will request.
     # If the max stock LKAS request is <384, add your car to this list.
