@@ -1,6 +1,6 @@
 import numpy as np
 from opendbc.can import CANPacker
-from opendbc.car import Bus, DT_CTRL, make_tester_present_msg, structs
+from opendbc.car import Bus, CanData, DT_CTRL, make_tester_present_msg, structs
 from opendbc.car.lateral import apply_driver_steer_torque_limits, common_fault_avoidance
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.hyundai import hyundaicanfd, hyundaican
@@ -28,6 +28,17 @@ MAX_ANGLE_CONSECUTIVE_FRAMES = 2
 # and triggers the "SCC Conditions Not Met" alert. Delaying the button send lets factory SCC disengage
 # naturally on brake press. We send ~100 ms later if it fails to do so, or if we want to cancel for another reason.
 CANCEL_BUTTON_DELAY_FRAMES = 10
+
+# The 2022-24 Carnival radar/SCC ECU accepts the initial UDS CommunicationControl
+# disable, but recorded alpha-long routes show SCC_CONTROL returning about two
+# minutes later while panda is still in longitudinal safety mode. Refresh the
+# same disable command before the ECU resumes to avoid a real relay fault.
+CARNIVAL_RADAR_COMM_CONTROL_INTERVAL_FRAMES = 500
+CARNIVAL_RADAR_COMM_CONTROL_DISABLE = bytes([0x03, 0x28, 0x83, 0x01, 0x00, 0x00, 0x00, 0x00])
+
+
+def make_carnival_radar_comm_control_msg(addr, bus):
+  return CanData(addr, CARNIVAL_RADAR_COMM_CONTROL_DISABLE, bus)
 
 
 def process_hud_alert(enabled, fingerprint, hud_control):
@@ -115,6 +126,8 @@ class CarController(CarControllerBase, EsccCarController, LeadDataCarController,
       if self.CP.flags & HyundaiFlags.CANFD_LKA_STEER_MSG.value:
         addr, bus = 0x730, self.CAN.ECAN
       can_sends.append(make_tester_present_msg(addr, bus, suppress_response=True))
+      if self.CP.carFingerprint == CAR.KIA_CARNIVAL_4TH_GEN and self.frame % CARNIVAL_RADAR_COMM_CONTROL_INTERVAL_FRAMES == 0:
+        can_sends.append(make_carnival_radar_comm_control_msg(addr, bus))
 
       # for blinkers
       if self.CP.flags & HyundaiFlags.CANFD_ENABLE_BLINKERS:
